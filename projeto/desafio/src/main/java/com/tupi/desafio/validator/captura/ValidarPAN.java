@@ -27,7 +27,7 @@ public class ValidarPAN implements ValidacoesTLV{
 			throw new ValidacaoException("PAN inválido. Não passou no algoritmo de Luhn.");
 	}
 
-	private boolean isTamanhoValidoPAN(String pan){
+	protected boolean isTamanhoValidoPAN(String pan){
 		return (pan.length() >= 13 && pan.length() <= 19);
 	}
 
@@ -35,7 +35,7 @@ public class ValidarPAN implements ValidacoesTLV{
 	// Algoritmo de Luhn
 	// Link: https://en.wikipedia.org/wiki/Luhn_algorithm
 	// Link: https://simplycalc.com/luhn-validate.php
-	private boolean isLuhnValido(String pan){
+	protected boolean isLuhnValido(String pan){
 		int soma = 0;
 		boolean multiplicar = true;
 
