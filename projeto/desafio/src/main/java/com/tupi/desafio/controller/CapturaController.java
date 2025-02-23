@@ -19,8 +19,8 @@ public class CapturaController {
 
 	@PostMapping
 	public ResponseEntity receber(@RequestBody RecebeTransacaoDTO dados){
-		var list = service.processarTransacao(dados);
+		var transacao = service.processarTransacao(dados);
 
-		return ResponseEntity.ok(list);
+		return ResponseEntity.ok(transacao);
 	}
 }
