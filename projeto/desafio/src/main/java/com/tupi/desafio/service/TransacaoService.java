@@ -10,6 +10,12 @@ import com.tupi.desafio.dto.RecebeTransacaoDTO;
 import com.tupi.desafio.entity.Transacao;
 import com.tupi.desafio.interfaces.ValidacoesTLV;
 import com.tupi.desafio.mapper.TransacaoMapper;
+import com.tupi.desafio.repository.TransacaoRepository;
+
+
+/**
+ * Serviço responsável por implementar as regras de negócio relacionadas a captura e processamento de transações
+ */
 
 @Service
 public class TransacaoService {
@@ -20,6 +26,8 @@ public class TransacaoService {
 	@Autowired
 	private AdministradoraService administradoraService;
 
+	@Autowired
+	private TransacaoRepository repository;
 
 	/**
 	 * Processa uma transação com base nos dados recebidos
@@ -40,6 +48,8 @@ public class TransacaoService {
 		var retorno = administradoraService.enviarParaAdministradora(transacao);
 		transacao.setStatus(retorno);
 
+		// Salva no banco de dados
+		repository.save(transacao);
 		return transacao;
 	}
 
