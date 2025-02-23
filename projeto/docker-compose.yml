@@ -1,0 +1,13 @@
+version: '3'
+services:
+ desafio-tupi-positivo:
+   build: .
+   container_name: desafio
+   ports:
+     - '8080:8080'
+   networks:
+     - mynetwork
+
+networks:
+ mynetwork:
+   driver: bridge
