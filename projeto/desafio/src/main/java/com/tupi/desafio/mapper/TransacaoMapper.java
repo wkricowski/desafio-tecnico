@@ -5,14 +5,16 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tupi.desafio.dto.RecebeTransacaoDTO;
+import com.tupi.desafio.dto.RespondeTransacaoDTO;
 import com.tupi.desafio.entity.Transacao;
 import com.tupi.desafio.entity.model.TagModel;
 import com.tupi.desafio.exception.ValidacaoException;
 
 /**
- * Classe responsável por transformar um DTO em Classe, durante o processo 
+ * Classe responsável por transformar um DTO em Classe ou uma Classe em DTO, durante o processo 
  * de transformação, é aplicada a lógica de decodificação/detalhamento das TLV
  */
+
 public class TransacaoMapper {
 	/**
 	 * Transforma um RecebeTransacaoDTO em uma classe Transação
@@ -25,6 +27,18 @@ public class TransacaoMapper {
 		transacao.setConteudoEMV(dados.dadosEMV());
 		transacao.setTags(decodificarTLV(dados.dadosEMV()));
 		return transacao;
+	}
+
+	
+	/**
+	 * Transforma uma classe Transacao em um RespondeTransacaoDTO
+	 * 
+	 * @param dados classe Transacao já inicializada
+	 * @return RespondeTransacaoDTO 
+	 */
+	public static RespondeTransacaoDTO toDTO (Transacao transacao){
+		transacao.setTags(decodificarTLV(transacao.getConteudoEMV()));
+		return new RespondeTransacaoDTO(transacao);
 	}
 
 

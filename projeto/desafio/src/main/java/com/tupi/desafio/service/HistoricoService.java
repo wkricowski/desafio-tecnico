@@ -7,7 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.tupi.desafio.entity.Transacao;
+import com.tupi.desafio.dto.RespondeTransacaoDTO;
+import com.tupi.desafio.mapper.TransacaoMapper;
 import com.tupi.desafio.repository.TransacaoRepository;
 
 /**
@@ -24,10 +25,10 @@ public class HistoricoService {
 	 * Busca uma transacao em especifica com base no id
 	 * 
 	 * @param id identificador de uma transacao 
-	 * @return Lista contendo um unico objeto Transacao, ou uma lista vazia caso o id nao seja encontrado
+	 * @return Lista contendo um unico RespondeTransacaoDTO, ou uma lista vazia caso o id não seja encontrado
 	 */
-	public List<Transacao> buscarTransacao(Integer id) {
-		return repository.findById(id).stream().toList();
+	public List<RespondeTransacaoDTO> buscarTransacao(Integer id) {
+		return repository.findById(id).stream().map(TransacaoMapper::toDTO).toList();
 	}
 
 
@@ -35,9 +36,9 @@ public class HistoricoService {
 	 * Busca todas as transações registradas
 	 * 
 	 * @param paginacao que define os parâmetros de paginação.
-	 * @return Página de Transacao contendo os registros encontrados.
+	 * @return Página de RespondeTransacaoDTO contendo os registros encontrados.
 	 */
-	public Page<Transacao> listarTodasTransacoes(Pageable paginacao){
-		return repository.findAll(paginacao);
+	public Page<RespondeTransacaoDTO> listarTodasTransacoes(Pageable paginacao){
+		return repository.findAll(paginacao).map(TransacaoMapper::toDTO);
 	}	
 }

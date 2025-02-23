@@ -1,5 +1,6 @@
 package com.tupi.desafio.controller;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,13 +12,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tupi.desafio.entity.Transacao;
+import com.tupi.desafio.dto.ErroDTO;
+import com.tupi.desafio.dto.RespondeTransacaoDTO;
 import com.tupi.desafio.service.HistoricoService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 
 /**
  * Essa classe é responsavel pelos endpoints de consulta, ela irá realizar a busca por transações processadas no sistema.
@@ -37,10 +42,10 @@ public class HistoricoController {
 	)
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Requisição processada com sucesso"),
-		@ApiResponse(responseCode = "500", description = "Erro interno no servidor")
+		@ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content(mediaType = "application/json", schema = @Schema(implementation =  ErroDTO.class)))
 	})
 	@GetMapping
-	public ResponseEntity<Page<Transacao>> listarTudo(@PageableDefault(size = 20, sort = {"id"}, direction = Direction.DESC) Pageable paginacao){
+	public ResponseEntity<Page<RespondeTransacaoDTO>> listarTudo(@ParameterObject @PageableDefault(size = 20, sort = {"id"}, direction = Direction.DESC) Pageable paginacao){
 		var page = service.listarTodasTransacoes(paginacao);
 		return ResponseEntity.ok(page);
 	}
@@ -52,9 +57,9 @@ public class HistoricoController {
 		description = "Irá recuperar uma transação em específico com base no id."
 	)
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "Requisição processada com sucesso"),
-		@ApiResponse(responseCode = "204", description = "Registro não encontrado"),
-		@ApiResponse(responseCode = "500", description = "Erro interno no servidor")
+		@ApiResponse(responseCode = "200", description = "Requisição processada com sucesso", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation =  RespondeTransacaoDTO.class)))),
+		@ApiResponse(responseCode = "204", description = "Requisição processada, mas não possui registros", content = @Content),
+		@ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content(mediaType = "application/json", schema = @Schema(implementation =  ErroDTO.class)))
 	})
 	@GetMapping("/{id}")
 	public ResponseEntity buscarPorId(@PathVariable Integer id){
