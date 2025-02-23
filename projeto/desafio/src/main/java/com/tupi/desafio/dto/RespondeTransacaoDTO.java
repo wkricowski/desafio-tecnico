@@ -12,6 +12,9 @@ public record RespondeTransacaoDTO(
 	@Schema(description = "ID da transação", example = "1")
 	Integer id,
 
+	@Schema(description = "Data e Hora da Transacao", example = "2025/02/23T12:02:58")
+	String dtaTransacao,
+
 	@Schema(description = "Status da transação", example = "APROVADA")
 	StatusTransacao status,
 
@@ -25,7 +28,7 @@ public record RespondeTransacaoDTO(
 	List<TagModel> tags
 ) {
 	public RespondeTransacaoDTO (Transacao t){
-		this(t.getId(), t.getStatus(), t.getNsu(), t.getConteudoEMV(), t.getTags());
+		this(t.getId(), t.getDtaTransacao(), t.getStatus(), t.getNsu(), t.getConteudoEMV(), t.getTags());
 	}		
 }
 
