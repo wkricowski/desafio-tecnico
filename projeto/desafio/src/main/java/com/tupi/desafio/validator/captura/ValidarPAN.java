@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.tupi.desafio.entity.Transacao;
 import com.tupi.desafio.entity.model.TagModel;
+import com.tupi.desafio.exception.ValidacaoException;
 import com.tupi.desafio.interfaces.ValidacoesTLV;
 
 @Component
@@ -15,14 +16,15 @@ public class ValidarPAN implements ValidacoesTLV{
 			.filter(tag -> tag.tag().equalsIgnoreCase("5A"))
 			.map(TagModel::value)
 			.findFirst()
-			.orElse("0");
+			.orElseThrow(() -> new ValidacaoException("Tag EMV 5A (PAN), não encontrada na lista recebida."));
 			
-
+		// Verificar se o PAN tem entre 13 e 19 dígitos
 		if (!isTamanhoValidoPAN(pan))
-			System.out.println(pan.length());
+			throw new ValidacaoException("PAN inválido. O PAN deve ter entre 13 e 19 dígitos.");
 
+		// Verifica se PAN passa no algoritimo de Luhn
 		if (!isLuhnValido(pan))
-			System.out.println("luhn invalido");
+			throw new ValidacaoException("PAN inválido. Não passou no algoritmo de Luhn.");
 	}
 
 	private boolean isTamanhoValidoPAN(String pan){
