@@ -9,15 +9,31 @@ import com.tupi.desafio.entity.Transacao;
 import com.tupi.desafio.entity.model.TagModel;
 import com.tupi.desafio.exception.ValidacaoException;
 
+/**
+ * Classe responsável por transformar um DTO em Classe, durante o processo 
+ * de transformação, é aplicada a lógica de decodificação/detalhamento das TLV
+ */
 public class TransacaoMapper {
-
+	/**
+	 * Transforma um RecebeTransacaoDTO em uma classe Transação
+	 * 
+	 * @param dados DTO contendo os dados EMV
+	 * @return Classe transação com as tags EMV detalhadas
+	 */
 	public static Transacao fromDTO (RecebeTransacaoDTO dados){
 		Transacao transacao = new Transacao();
-		transacao.setEmv(dados.dadosEMV());
+		transacao.setConteudoEMV(dados.dadosEMV());
 		transacao.setTags(decodificarTLV(dados.dadosEMV()));
 		return transacao;
 	}
 
+
+	/**
+	 * Metodo para decodificar um TLV de dados EMV
+	 * 
+	 * @param dados String contendo as TLVs
+	 * @return Lista de TagModel
+	 */
 	private static List<TagModel> decodificarTLV(String dados) {
 		List<TagModel> tlvList = new ArrayList<>();
 		int posAtual = 0;
@@ -71,6 +87,12 @@ public class TransacaoMapper {
         return tlvList;
     }
 
+	/**
+	 * Metodo para converter uma String hexadecimal em um array de bytes
+	 * 
+	 * @param dados String contendo o conteúdo em hexadecimal
+	 * @return array de bytes
+	 */
 	private static byte[] hexStringToByteArray(String dados) {
 		int length = dados.length();
 		byte[] data = new byte[length / 2];
@@ -80,6 +102,12 @@ public class TransacaoMapper {
 		return data;
 	}
 	
+	/**
+	 * Metodo para converter um array de bytes em String
+	 * 
+	 * @param dados array de bytes
+	 * @return String com o conteudo
+	 */
 	private static String bytesToHex(byte[] dados) {
 		StringBuilder sb = new StringBuilder();
 		for (byte b : dados) {

@@ -18,7 +18,9 @@ public class Transacao {
 
 	private StatusTransacao status;
 
-	private String emv;
+	private String conteudoEMV;
+
+	private Integer nsu;
 
 	private List<TagModel> tags;
 
