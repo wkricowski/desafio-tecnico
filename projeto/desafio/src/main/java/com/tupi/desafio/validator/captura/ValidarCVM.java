@@ -3,7 +3,6 @@ package com.tupi.desafio.validator.captura;
 import org.springframework.stereotype.Component;
 
 import com.tupi.desafio.entity.Transacao;
-import com.tupi.desafio.entity.model.TagModel;
 import com.tupi.desafio.exception.ValidacaoException;
 import com.tupi.desafio.interfaces.ValidacoesTLV;
 
@@ -12,11 +11,7 @@ public class ValidarCVM  implements ValidacoesTLV{
 
 	@Override
 	public void validar(Transacao transacao) {
-		String resultadoCVM = transacao.getTags().stream()
-				.filter(tag -> tag.tag().equalsIgnoreCase("9F34"))
-				.map(TagModel::value)
-				.findFirst()
-				.orElseThrow(() -> new ValidacaoException("Tag EMV 9F34 (CVM Results) não encontrada na lista recebida."));
+		String resultadoCVM = transacao.getTag("9F34").orElseThrow(() -> new ValidacaoException("Tag EMV 9F34 (CVM Results) não encontrada na lista recebida."));
 
 		if (resultadoCVM.length() != 6)
 			throw new ValidacaoException("Tag EMV 9F34 (CVM Results) é inválida.");

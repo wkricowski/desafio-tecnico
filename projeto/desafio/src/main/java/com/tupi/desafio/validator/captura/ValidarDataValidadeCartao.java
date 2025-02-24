@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import org.springframework.stereotype.Component;
 
 import com.tupi.desafio.entity.Transacao;
-import com.tupi.desafio.entity.model.TagModel;
 import com.tupi.desafio.exception.ValidacaoException;
 import com.tupi.desafio.interfaces.ValidacoesTLV;
 
@@ -14,11 +13,7 @@ public class ValidarDataValidadeCartao implements ValidacoesTLV{
 
 	@Override
 	public void validar(Transacao transacao) {
-		String dataValidade = transacao.getTags().stream()
-				.filter(tag -> tag.tag().equalsIgnoreCase("5F24"))
-				.map(TagModel::value)
-				.findFirst()
-				.orElseThrow(() -> new ValidacaoException("Tag EMV 5F24 (Data Validade) nao encontrada na lista recebida"));
+		String dataValidade = transacao.getTag("5F24").orElseThrow(() -> new ValidacaoException("Tag EMV 5F24 (Data Validade) nao encontrada na lista recebida"));
 
 		LocalDate dataCartao = recuperarLocalDate(dataValidade);
 

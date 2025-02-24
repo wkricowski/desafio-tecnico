@@ -3,6 +3,7 @@ package com.tupi.desafio.entity;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 import com.tupi.desafio.entity.model.TagModel;
 import com.tupi.desafio.enums.StatusTransacao;
@@ -54,5 +55,9 @@ public class Transacao {
 	public void setDtaTransacao(LocalDateTime dt){
 		DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy/MM/dd'T'HH:mm:ss");
     	this.dtaTransacao = dt.format(f);
+	}
+
+	public Optional<String> getTag(String tag){
+		return tags.stream().filter(t -> t.tag().equalsIgnoreCase(tag)).map(TagModel::value).findFirst();
 	}
 }

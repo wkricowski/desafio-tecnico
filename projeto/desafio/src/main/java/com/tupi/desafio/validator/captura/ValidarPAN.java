@@ -3,7 +3,6 @@ package com.tupi.desafio.validator.captura;
 import org.springframework.stereotype.Component;
 
 import com.tupi.desafio.entity.Transacao;
-import com.tupi.desafio.entity.model.TagModel;
 import com.tupi.desafio.exception.ValidacaoException;
 import com.tupi.desafio.interfaces.ValidacoesTLV;
 
@@ -12,12 +11,8 @@ public class ValidarPAN implements ValidacoesTLV{
 
 	@Override
 	public void validar(Transacao transacao) {
-		String pan = transacao.getTags().stream()
-			.filter(tag -> tag.tag().equalsIgnoreCase("5A"))
-			.map(TagModel::value)
-			.findFirst()
-			.orElseThrow(() -> new ValidacaoException("Tag EMV 5A (PAN), não encontrada na lista recebida."));
-			
+		String pan = transacao.getTag("5A").orElseThrow(() -> new ValidacaoException("Tag EMV 5A (PAN), não encontrada na lista recebida."));
+		
 		// Verificar se o PAN tem entre 13 e 19 dígitos
 		if (!isTamanhoValidoPAN(pan))
 			throw new ValidacaoException("PAN inválido. O PAN deve ter entre 13 e 19 dígitos.");
