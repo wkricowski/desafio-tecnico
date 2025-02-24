@@ -13,4 +13,10 @@ public class HttpResponse {
 	public ResponseEntity tratarErrosRegras(ValidacaoException ex) {
 		return ResponseEntity.badRequest().body(new ErroDTO(ex.getMessage()));
 	}
+
+	// Aqui trata o erro 500, para sair com o mesmo ErroDTO
+	@ExceptionHandler(IllegalStateException.class)
+	public ResponseEntity padronizarErroInterno(IllegalStateException ex) {
+		return ResponseEntity.internalServerError().body(new ErroDTO(ex.getMessage()));
+	}
 }

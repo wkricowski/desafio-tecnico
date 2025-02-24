@@ -1,4 +1,4 @@
-package com.tupi.desafio.validator.captura;
+package com.tupi.desafio.validator.dados;
 
 import java.time.LocalDate;
 
@@ -6,20 +6,19 @@ import org.springframework.stereotype.Component;
 
 import com.tupi.desafio.entity.Transacao;
 import com.tupi.desafio.exception.ValidacaoException;
-import com.tupi.desafio.interfaces.ValidacoesTagsMandatorias;
+import com.tupi.desafio.interfaces.ValidacoesDosDados;
 
 @Component
-public class ValidarDataValidadeCartao implements ValidacoesTagsMandatorias{
+public class ValidarVencimentoDoCartao implements ValidacoesDosDados{
 
 	@Override
 	public void validar(Transacao transacao) {
-		String dataValidade = transacao.getTag("5F24").orElseThrow(() -> new ValidacaoException("Tag EMV Mandatória: 5F24 (Data Validade), não recebida."));
+		var dataTag = transacao.getTag("5F24").orElseThrow(() -> new IllegalStateException("Validação relacionada ao vencimento do cartão, mas vencimento não esta presente."));
 
-		// Valida se está no padrão esperado yyMMdd
-		// https://emvlab.org/emvtags/?number=5f24
-		recuperarLocalDate(dataValidade);
+		LocalDate data = recuperarLocalDate(dataTag);
+		if (data.isBefore(LocalDate.now()))
+			throw new ValidacaoException("A data de validade não pode ser inferior à data atual.");
 	}
-
 
 	private LocalDate recuperarLocalDate(String data){
 		try{
@@ -33,7 +32,8 @@ public class ValidarDataValidadeCartao implements ValidacoesTagsMandatorias{
 			int anoCompleto = (ano >= 50) ? 1900 + ano : 2000 + ano;
 			return LocalDate.of(anoCompleto, mes, dia);
 		}catch(Exception ex){
-			throw new ValidacaoException("Tag EMV Mandatória: 5F24 (Data Validade) recebida, porém não corresponde ao formato yyMMdd.");
+			throw new ValidacaoException("Data de Vencimento recebida para validação não condiz com o formato esperado (yyMMdd).");
 		}
 	}
+
 }

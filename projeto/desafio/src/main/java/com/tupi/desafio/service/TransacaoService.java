@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.tupi.desafio.dto.RecebeTransacaoDTO;
 import com.tupi.desafio.entity.Transacao;
-import com.tupi.desafio.interfaces.ValidacoesTLV;
+import com.tupi.desafio.interfaces.ValidacoesDosDados;
+import com.tupi.desafio.interfaces.ValidacoesTagsMandatorias;
 import com.tupi.desafio.mapper.TransacaoMapper;
 import com.tupi.desafio.repository.TransacaoRepository;
 
@@ -21,7 +22,10 @@ import com.tupi.desafio.repository.TransacaoRepository;
 public class TransacaoService {
 
 	@Autowired
-	private List<ValidacoesTLV> validadores;
+	private List<ValidacoesTagsMandatorias> validadoresTags;
+	
+	@Autowired
+	private List<ValidacoesDosDados> validadoresDados;
 
 	@Autowired
 	private AdministradoraService administradoraService;
@@ -38,9 +42,12 @@ public class TransacaoService {
 	public Transacao processarTransacao(RecebeTransacaoDTO dados) {
 		var transacao = TransacaoMapper.fromDTO(dados);
 
-		// Percorre a lista de validações que implementam a 'interface/ValidacoesTLV.java'
-		validadores.forEach(v -> v.validar(transacao));
+		// Percorre a lista de validações que implementam a 'interface/ValidacoesTagsMandatorias.java'
+		validadoresTags.forEach(v -> v.validar(transacao));
 
+		// Percorre a lista de validações que implementam a 'interface/ValidacoesDosDados.java'
+		validadoresDados.forEach(v -> v.validar(transacao));
+		
 		// Se chegou aqui, estamos com uma transação válida, então vamos gerar um NSU para ela
 		transacao.setNsu(gerarNSU());
 

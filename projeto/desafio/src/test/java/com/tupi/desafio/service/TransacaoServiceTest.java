@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,7 @@ import org.mockito.BDDMockito;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -21,11 +23,14 @@ import com.tupi.desafio.dto.RecebeTransacaoDTO;
 import com.tupi.desafio.entity.Transacao;
 import com.tupi.desafio.enums.StatusTransacao;
 import com.tupi.desafio.exception.ValidacaoException;
-import com.tupi.desafio.interfaces.ValidacoesTLV;
+import com.tupi.desafio.interfaces.ValidacoesDosDados;
+import com.tupi.desafio.interfaces.ValidacoesTagsMandatorias;
 import com.tupi.desafio.mapper.TransacaoMapper;
 import com.tupi.desafio.repository.TransacaoRepository;
 import com.tupi.desafio.validator.captura.ValidarCVM;
 import com.tupi.desafio.validator.captura.ValidarPAN;
+import com.tupi.desafio.validator.dados.ValidarAlgoritmoDeLuhn;
+import com.tupi.desafio.validator.dados.ValidarTamanhoPAN;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +49,10 @@ public class TransacaoServiceTest {
 	private AdministradoraService administradoraService;
 
 	@Spy
-	private List<ValidacoesTLV> validadores = new ArrayList<>();
+	private List<ValidacoesTagsMandatorias> validadoresTags = new ArrayList<>();
+
+	@Spy
+	private List<ValidacoesDosDados> validadoresDados = new ArrayList<>();
 
 	@Mock
 	private ValidarPAN validacoesPAN;
@@ -52,12 +60,25 @@ public class TransacaoServiceTest {
 	@Mock
 	private ValidarCVM validacoesCVM;
 
+	@Mock
+	private ValidarTamanhoPAN validarTamanhoPan;
+
+	@Mock
+	private ValidarAlgoritmoDeLuhn validarAlgoritmoDeLuhn;
+
     @Captor
     private ArgumentCaptor<Transacao> transacaoCaptor;
 
 	@Mock
 	private TransacaoMapper transacaoMapper;
 
+	@BeforeEach
+	void setUp() {
+		MockitoAnnotations.openMocks(this);
+	}
+
+	@Mock
+	private Transacao transacao;
 
 	@Test
 	@DisplayName("Deve chamar a funcao 'save' se for uma transacao válida ")
@@ -70,19 +91,44 @@ public class TransacaoServiceTest {
 	}
 
 	@Test
-	@DisplayName("Deve chamar a funcao 'validar' de todas as validacoes na lista de validadores")
-	void testListaDeValidacoes() {
-        RecebeTransacaoDTO dto = new RecebeTransacaoDTO(TRANSACAO_VALIDA);
+	@DisplayName("Deve chamar a funcao 'validar' de todas as validacoes na lista de validadoresTags para confirmar o recebimento de tags mandatórias")
+	void testValidadoresTagMandatorias() {
+		// Arrange
+		RecebeTransacaoDTO dto = new RecebeTransacaoDTO(TRANSACAO_VALIDA);
 
-		// Adicionamos 2 validadores mockados na lista (OBS, atualmente temos 3 validadores)
-		validadores.add(validacoesPAN);
-		validadores.add(validacoesCVM);
-
+		BDDMockito.willDoNothing().given(validadoresDados).forEach(any());
+		validadoresTags.add(validacoesPAN);
+		validadoresTags.add(validacoesCVM);
+		
+		// Act
 		service.processarTransacao(dto);
 
-		BDDMockito.then(validacoesPAN).should().validar(any(Transacao.class));
-		BDDMockito.then(validacoesCVM).should().validar(any(Transacao.class));
+		// Assert
+		// Verifica se o método 'validar' foi chamado uma vez para cada validador na lista
+		BDDMockito.then(validacoesPAN).should(BDDMockito.times(1)).validar(any(Transacao.class));
+		BDDMockito.then(validacoesCVM).should(BDDMockito.times(1)).validar(any(Transacao.class));
 	}
+
+	@Test
+	@DisplayName("Deve chamar a funcao 'validar' de todas as validacoes na lista de validadoresDados para confirmar a estrutura correta/esperada dos dados")
+	void testValidadoresDados() {
+		// Arrange
+		RecebeTransacaoDTO dto = new RecebeTransacaoDTO(TRANSACAO_VALIDA);
+
+		BDDMockito.willDoNothing().given(validadoresTags).forEach(any());
+		validadoresDados.add(validarTamanhoPan);
+		validadoresDados.add(validarAlgoritmoDeLuhn);
+		
+		// Act
+		service.processarTransacao(dto);
+
+		// Assert
+		// Verifica se o método 'validar' foi chamado uma vez para cada validador na lista
+		BDDMockito.then(validarTamanhoPan).should(BDDMockito.times(1)).validar(any(Transacao.class));
+		BDDMockito.then(validarAlgoritmoDeLuhn).should(BDDMockito.times(1)).validar(any(Transacao.class));
+	}
+
+
 
 	@Test
 	@DisplayName("Deve lançar exceção se o TLV for invalido")
