@@ -190,6 +190,7 @@ Exemplo de retorno `400 - Bad Request` da API:
 }
 ```
 
+É possivel verificar todas as transação **processadas** fazendo uma requisição `GET` para `/historico` que retornará a lista com suporte a páginação (default: 20 registros por página) ou recuperar uma transação em especifica informando o `id` no endpoint `/historico/{id}`.
 
 
 <br/>
